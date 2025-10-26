@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم - Admin Panel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .admin-container {
+            max-width: 1400px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .admin-stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-right: 5px solid #667eea;
+        }
+
+        .admin-stat-card h3 {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .admin-stat-card .value {
+            font-size: 36px;
+            font-weight: 800;
+            color: #2c3e50;
+        }
+
+        .users-table {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .table-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .users-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .users-table th {
+            background: #f8f9fa;
+            padding: 15px;
+            text-align: right;
+            font-weight: 700;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .users-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .users-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .status-badge {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-expired {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-trial {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .close-modal {
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .plans-grid {
+            display: grid;
+            gap: 15px;
+        }
+
+        .plan-card {
+            border: 2px solid #e0e0e0;
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .plan-card:hover {
+            border-color: #667eea;
+            background: #f8f9fa;
+        }
+
+        .plan-card.selected {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <h1 class="logo"><i class="fas fa-user-shield"></i> لوحة تحكم المدير</h1>
+            <div class="header-actions">
+                <a href="/" class="btn btn-secondary">
+                    <i class="fas fa-home"></i> الرئيسية
+                </a>
+                <a href="/auth/logout" class="btn btn-danger">
+                    <i class="fas fa-sign-out-alt"></i> خروج
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <div class="admin-container">
+        <!-- الإحصائيات -->
+        <div class="stats-grid">
+            <div class="admin-stat-card">
+                <h3><i class="fas fa-users"></i> إجمالي المستخدمين</h3>
+                <div class="value">{{ stats.total_users }}</div>
+            </div>
+            <div class="admin-stat-card">
+                <h3><i class="fas fa-check-circle"></i> اشتراكات نشطة</h3>
+                <div class="value">{{ stats.active_subscriptions }}</div>
+            </div>
+            <div class="admin-stat-card">
+                <h3><i class="fas fa-times-circle"></i> اشتراكات منتهية</h3>
+                <div class="value">{{ stats.expired_subscriptions }}</div>
+            </div>
+            <div class="admin-stat-card">
+                <h3><i class="fas fa-money-bill-wave"></i> إجمالي الإيرادات</h3>
+                <div class="value">{{ stats.total_revenue|round|int }} ج.م</div>
+            </div>
+        </div>
+
+        <!-- جدول المستخدمين -->
+        <div class="users-table">
+            <div class="table-header">
+                <h2><i class="fas fa-users"></i> إدارة المستخدمين</h2>
+                <button class="btn btn-success" onclick="openAddUserModal()">
+                    <i class="fas fa-user-plus"></i> إضافة مستخدم
+                </button>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>الاسم</th>
+                        <th>البريد الإلكتروني</th>
+                        <th>الشركة</th>
+                        <th>الخطة</th>
+                        <th>تنتهي في</th>
+                        <th>الحالة</th>
+                        <th>الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody id="users-tbody">
+                    {% for user in users %}
+                    <tr>
+                        <td>{{ user.id }}</td>
+                        <td>{{ user.full_name }}</td>
+                        <td>{{ user.email }}</td>
+                        <td>{{ user.company_name or '-' }}</td>
+                        <td>{{ user.plan_name or 'بدون اشتراك' }}</td>
+                        <td>
+                            {% if user.end_date %}
+                                {{ user.end_date[:10] }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if user.sub_active and user.end_date %}
+                                <span class="status-badge status-active">نشط</span>
+                            {% elif user.end_date %}
+                                <span class="status-badge status-expired">منتهي</span>
+                            {% else %}
+                                <span class="status-badge status-trial">بدون اشتراك</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn btn-sm btn-success" onclick="openSubscriptionModal({{ user.id }})" title="إدارة الاشتراك">
+                                    <i class="fas fa-crown"></i>
+                                </button>
+                                <button class="btn btn-sm btn-warning" onclick="extendSubscription({{ user.id }})" title="تمديد">
+                                    <i class="fas fa-clock"></i>
+                                </button>
+                                <button class="btn btn-sm btn-{% if user.is_active %}danger{% else %}success{% endif %}" 
+                                        onclick="toggleUserStatus({{ user.id }}, {{ user.is_active }})" 
+                                        title="{% if user.is_active %}تعطيل{% else %}تفعيل{% endif %}">
+                                    <i class="fas fa-{% if user.is_active %}ban{% else %}check{% endif %}"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal: إضافة اشتراك -->
+    <div class="modal" id="subscription-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-crown"></i> إدارة الاشتراك</h3>
+                <span class="close-modal" onclick="closeModal('subscription-modal')">&times;</span>
+            </div>
+            
+            <input type="hidden" id="selected-user-id">
+            
+            <div class="plans-grid" id="plans-grid">
+                {% for plan in plans %}
+                <div class="plan-card" onclick="selectPlan(this, '{{ plan.name }}', {{ plan.duration_days }}, {{ plan.max_products }}, {{ plan.max_users }}, {{ plan.price }})">
+                    <h4 style="color: #667eea; margin-bottom: 10px;">{{ plan.name }}</h4>
+                    <p style="font-size: 14px; color: #666; margin-bottom: 10px;">{{ plan.features }}</p>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-size: 24px; font-weight: 800; color: #2c3e50;">{{ plan.price }} ج.م</span>
+                        <span style="color: #999;">{{ plan.duration_days }} يوم</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <button class="btn" onclick="createSubscription()" style="margin-top: 20px;">
+                <i class="fas fa-check"></i> تفعيل الاشتراك
+            </button>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <script>
+        let selectedPlan = null;
+
+        function openSubscriptionModal(userId) {
+            document.getElementById('selected-user-id').value = userId;
+            document.getElementById('subscription-modal').classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function selectPlan(element, name, days, maxProducts, maxUsers, price) {
+            document.querySelectorAll('.plan-card').forEach(p => p.classList.remove('selected'));
+            element.classList.add('selected');
+            
+            selectedPlan = {name, days, maxProducts, maxUsers, price};
+        }
+
+        async function createSubscription() {
+            if (!selectedPlan) {
+                showToast('error', 'اختر خطة اشتراك أولاً');
+                return;
+            }
+
+            const userId = document.getElementById('selected-user-id').value;
+
+            try {
+                const response = await fetch('/admin/create-subscription', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        user_id: userId,
+                        plan_name: selectedPlan.name,
+                        duration_days: selectedPlan.days,
+                        max_products: selectedPlan.maxProducts,
+                        max_users: selectedPlan.maxUsers,
+                        price: selectedPlan.price
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showToast('success', 'تم تفعيل الاشتراك بنجاح');
+                    closeModal('subscription-modal');
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showToast('error', result.message || 'خطأ في تفعيل الاشتراك');
+                }
+            } catch (error) {
+                showToast('error', 'خطأ في الاتصال');
+            }
+        }
+
+        async function extendSubscription(userId) {
+            const days = prompt('عدد الأيام للتمديد:', '30');
+            if (!days) return;
+
+            try {
+                const response = await fetch('/admin/extend-subscription', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({user_id: userId, days: parseInt(days)})
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showToast('success', 'تم تمديد الاشتراك');
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showToast('error', result.message || 'خطأ');
+                }
+            } catch (error) {
+                showToast('error', 'خطأ في الاتصال');
+            }
+        }
+
+        async function toggleUserStatus(userId, currentStatus) {
+            const newStatus = currentStatus ? 0 : 1;
+            const action = newStatus ? 'تفعيل' : 'تعطيل';
+
+            if (!confirm(`هل أنت متأكد من ${action} هذا المستخدم؟`)) return;
+
+            try {
+                const response = await fetch('/admin/toggle-user-status', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({user_id: userId, is_active: newStatus})
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showToast('success', `تم ${action} المستخدم`);
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showToast('error', 'خطأ');
+                }
+            } catch (error) {
+                showToast('error', 'خطأ في الاتصال');
+            }
+        }
+    </script>
+</body>
+</html>
+

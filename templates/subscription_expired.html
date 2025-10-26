@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الاشتراك منتهي</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            direction: rtl;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 60px 40px;
+            max-width: 600px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .icon {
+            font-size: 80px;
+            color: #e74c3c;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 32px;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-weight: 800;
+        }
+
+        p {
+            font-size: 18px;
+            color: #666;
+            line-height: 1.8;
+            margin-bottom: 30px;
+        }
+
+        .message {
+            background: #fff3cd;
+            padding: 20px;
+            border-radius: 10px;
+            border-right: 5px solid #ffc107;
+            margin-bottom: 30px;
+            color: #856404;
+            font-weight: 600;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .contact-info {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid #e0e0e0;
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon">
+            <i class="fas fa-exclamation-circle"></i>
+        </div>
+        
+        <h1>الاشتراك منتهي</h1>
+        
+        <p>عزيزي المستخدم، اشتراكك في نظام إدارة المخزون قد انتهى.</p>
+        
+        <div class="message">
+            <i class="fas fa-info-circle"></i>
+            {{ message }}
+        </div>
+        
+        <p>للاستمرار في استخدام النظام، يرجى تجديد الاشتراك.</p>
+        
+        <div class="buttons">
+            <a href="mailto:support@inventory.com" class="btn btn-primary">
+                <i class="fas fa-envelope"></i>
+                تواصل معنا لتجديد الاشتراك
+            </a>
+            <a href="/auth/logout" class="btn btn-secondary">
+                <i class="fas fa-sign-out-alt"></i>
+                تسجيل خروج
+            </a>
+        </div>
+        
+        <div class="contact-info">
+            <p><strong>للتواصل:</strong></p>
+            <p>📧 support@inventory.com</p>
+            <p>📱 +20 XXX XXX XXXX</p>
+        </div>
+    </div>
+</body>
+</html>
+
