@@ -267,6 +267,8 @@ def delete_plan(plan_id):
 # ==================== تشغيل التطبيق ====================
 
 if __name__ == '__main__':
+    import os
+    
     print('=' * 70)
     print('🔐 Admin Panel - نظام إدارة الاشتراكات')
     print('=' * 70)
@@ -287,6 +289,7 @@ if __name__ == '__main__':
     print('=' * 70)
     print()
     
-    # تشغيل على port مختلف
-    app.run(debug=True, host='0.0.0.0', port=5001)
+    # تشغيل على port مختلف (يدعم Render)
+    port = int(os.environ.get('PORT', 5001))
+    app.run(debug=False, host='0.0.0.0', port=port)
 
