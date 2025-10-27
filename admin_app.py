@@ -5,12 +5,19 @@
 """
 
 from flask import Flask, render_template, request, jsonify, redirect, url_for, session
+from flask_cors import CORS
 from subscription_system import subscription_system
 from admin_api import add_api_routes
 from functools import wraps
 
 app = Flask(__name__)
 app.secret_key = 'admin-secret-key-2025-very-secure'
+
+# تفعيل CORS للسماح بالطلبات من التطبيقات الأخرى
+CORS(app, resources={
+    r"/api/*": {"origins": "*"},
+    r"/admin/*": {"origins": "*"}
+})
 
 # إضافة API routes
 add_api_routes(app)
