@@ -6,12 +6,65 @@
     <title>لوحة التحكم - Admin Panel</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        @keyframes slideDown {
+            from { transform: translate(-50%, -100px); opacity: 0; }
+            to { transform: translate(-50%, 0); opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { transform: translate(-50%, 0); opacity: 1; }
+            to { transform: translate(-50%, -100px); opacity: 0; }
+        }
+
+        .admin-header {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .admin-header h1 {
+            font-size: 28px;
+            color: #2c3e50;
+        }
+
+        .logout-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: all 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+        }
+
         .admin-container {
             max-width: 1400px;
-            margin: 20px auto;
-            padding: 20px;
+            margin: 0 auto;
         }
 
         .stats-grid {
@@ -41,69 +94,92 @@
             color: #2c3e50;
         }
 
-        .users-table {
+        .users-section {
             background: white;
             border-radius: 15px;
-            overflow: hidden;
+            padding: 20px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
-        .table-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .users-section h2 {
+            margin-bottom: 20px;
+            color: #2c3e50;
         }
 
-        .users-table table {
+        table {
             width: 100%;
             border-collapse: collapse;
         }
 
-        .users-table th {
-            background: #f8f9fa;
+        th, td {
             padding: 15px;
             text-align: right;
-            font-weight: 700;
-            border-bottom: 2px solid #e0e0e0;
+            border-bottom: 1px solid #eee;
         }
 
-        .users-table td {
-            padding: 15px;
-            border-bottom: 1px solid #e0e0e0;
-        }
-
-        .users-table tr:hover {
+        th {
             background: #f8f9fa;
+            font-weight: 700;
+            color: #2c3e50;
         }
 
-        .status-badge {
-            padding: 5px 15px;
+        .badge {
+            display: inline-block;
+            padding: 5px 12px;
             border-radius: 20px;
             font-size: 12px;
             font-weight: 700;
         }
 
-        .status-active {
-            background: #d4edda;
-            color: #155724;
+        .badge-success {
+            background: #27ae60;
+            color: white;
         }
 
-        .status-expired {
-            background: #f8d7da;
-            color: #721c24;
+        .badge-danger {
+            background: #e74c3c;
+            color: white;
         }
 
-        .status-trial {
-            background: #fff3cd;
-            color: #856404;
+        .badge-warning {
+            background: #f39c12;
+            color: white;
         }
 
         .action-buttons {
             display: flex;
-            gap: 5px;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: all 0.3s;
+            color: white;
+        }
+
+        .btn-success {
+            background: #27ae60;
+        }
+
+        .btn-warning {
+            background: #f39c12;
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+        }
+
+        .btn-primary {
+            background: #667eea;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
 
         .modal {
@@ -111,9 +187,9 @@
             position: fixed;
             top: 0;
             left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.5);
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
             z-index: 1000;
             align-items: center;
             justify-content: center;
@@ -127,7 +203,7 @@
             background: white;
             padding: 30px;
             border-radius: 15px;
-            max-width: 500px;
+            max-width: 800px;
             width: 90%;
             max-height: 80vh;
             overflow-y: auto;
@@ -138,132 +214,138 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #e0e0e0;
         }
 
-        .close-modal {
-            font-size: 24px;
+        .modal-header h2 {
+            color: #2c3e50;
+        }
+
+        .close-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
             cursor: pointer;
-            color: #999;
+            font-size: 18px;
         }
 
         .plans-grid {
             display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 15px;
+            margin-bottom: 20px;
         }
 
         .plan-card {
-            border: 2px solid #e0e0e0;
-            padding: 15px;
+            border: 2px solid #ddd;
             border-radius: 10px;
+            padding: 15px;
             cursor: pointer;
             transition: all 0.3s;
+            text-align: center;
         }
 
         .plan-card:hover {
             border-color: #667eea;
-            background: #f8f9fa;
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
         .plan-card.selected {
-            border-color: #667eea;
-            background: #f0f4ff;
+            border-color: #27ae60;
+            background: #ecf9f2;
+        }
+
+        .plan-card h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .plan-card .price {
+            font-size: 24px;
+            font-weight: 800;
+            color: #667eea;
+            margin: 10px 0;
+        }
+
+        .plan-card .features {
+            font-size: 14px;
+            color: #666;
         }
     </style>
 </head>
 <body>
-    <header class="header">
-        <div class="container">
-            <h1 class="logo"><i class="fas fa-user-shield"></i> لوحة تحكم المدير</h1>
-            <div class="header-actions">
-                <a href="/" class="btn btn-secondary">
-                    <i class="fas fa-home"></i> الرئيسية
-                </a>
-                <a href="/auth/logout" class="btn btn-danger">
-                    <i class="fas fa-sign-out-alt"></i> خروج
-                </a>
-            </div>
-        </div>
-    </header>
-
     <div class="admin-container">
-        <!-- الإحصائيات -->
+        <div class="admin-header">
+            <h1><i class="fas fa-crown"></i> لوحة تحكم المدير</h1>
+            <button class="logout-btn" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i> تسجيل خروج
+            </button>
+        </div>
+
         <div class="stats-grid">
             <div class="admin-stat-card">
-                <h3><i class="fas fa-users"></i> إجمالي المستخدمين</h3>
+                <h3>إجمالي المستخدمين</h3>
                 <div class="value">{{ stats.total_users }}</div>
             </div>
             <div class="admin-stat-card">
-                <h3><i class="fas fa-check-circle"></i> اشتراكات نشطة</h3>
-                <div class="value">{{ stats.active_subscriptions }}</div>
+                <h3>مستخدمين نشطين</h3>
+                <div class="value">{{ stats.active_users }}</div>
             </div>
             <div class="admin-stat-card">
-                <h3><i class="fas fa-times-circle"></i> اشتراكات منتهية</h3>
+                <h3>اشتراكات منتهية</h3>
                 <div class="value">{{ stats.expired_subscriptions }}</div>
             </div>
             <div class="admin-stat-card">
-                <h3><i class="fas fa-money-bill-wave"></i> إجمالي الإيرادات</h3>
-                <div class="value">{{ stats.total_revenue|round|int }} ج.م</div>
+                <h3>إجمالي الإيرادات</h3>
+                <div class="value">{{ stats.total_revenue }} ج.م</div>
             </div>
         </div>
 
-        <!-- جدول المستخدمين -->
-        <div class="users-table">
-            <div class="table-header">
-                <h2><i class="fas fa-users"></i> إدارة المستخدمين</h2>
-                <button class="btn btn-success" onclick="openAddUserModal()">
-                    <i class="fas fa-user-plus"></i> إضافة مستخدم
-                </button>
-            </div>
-
+        <div class="users-section">
+            <h2><i class="fas fa-users"></i> إدارة المستخدمين</h2>
             <table>
                 <thead>
                     <tr>
-                        <th>ID</th>
-                        <th>الاسم</th>
                         <th>البريد الإلكتروني</th>
-                        <th>الشركة</th>
-                        <th>الخطة</th>
-                        <th>تنتهي في</th>
+                        <th>تاريخ التسجيل</th>
+                        <th>الاشتراك</th>
                         <th>الحالة</th>
-                        <th>الإجراءات</th>
+                        <th>إجراءات</th>
                     </tr>
                 </thead>
-                <tbody id="users-tbody">
+                <tbody>
                     {% for user in users %}
                     <tr>
-                        <td>{{ user.id }}</td>
-                        <td>{{ user.full_name }}</td>
                         <td>{{ user.email }}</td>
-                        <td>{{ user.company_name or '-' }}</td>
-                        <td>{{ user.plan_name or 'بدون اشتراك' }}</td>
+                        <td>{{ user.created_at }}</td>
                         <td>
-                            {% if user.end_date %}
-                                {{ user.end_date[:10] }}
+                            {% if user.subscription %}
+                                <strong>{{ user.subscription.plan_name }}</strong><br>
+                                <small>متبقي: {{ user.subscription.days_remaining }} يوم</small>
                             {% else %}
-                                -
+                                <span class="badge badge-warning">بدون اشتراك</span>
                             {% endif %}
                         </td>
                         <td>
-                            {% if user.sub_active and user.end_date %}
-                                <span class="status-badge status-active">نشط</span>
-                            {% elif user.end_date %}
-                                <span class="status-badge status-expired">منتهي</span>
+                            {% if user.is_active %}
+                                <span class="badge badge-success">نشط</span>
                             {% else %}
-                                <span class="status-badge status-trial">بدون اشتراك</span>
+                                <span class="badge badge-danger">معطل</span>
                             {% endif %}
                         </td>
                         <td>
                             <div class="action-buttons">
-                                <button class="btn btn-sm btn-success" onclick="openSubscriptionModal({{ user.id }})" title="إدارة الاشتراك">
+                                <button class="btn btn-success" onclick="openSubscriptionModal({{ user.id }})" title="إدارة الاشتراك">
                                     <i class="fas fa-crown"></i>
                                 </button>
-                                <button class="btn btn-sm btn-warning" onclick="extendSubscription({{ user.id }})" title="تمديد">
+                                <button class="btn btn-warning" onclick="extendSubscription({{ user.id }})" title="تمديد">
                                     <i class="fas fa-clock"></i>
                                 </button>
-                                <button class="btn btn-sm btn-{% if user.is_active %}danger{% else %}success{% endif %}" 
-                                        onclick="toggleUserStatus({{ user.id }}, {{ user.is_active }})" 
+                                <button class="btn btn-{% if user.is_active %}danger{% else %}success{% endif %}" 
+                                        onclick="toggleUserStatus({{ user.id }}, {{ user.is_active|tojson }})" 
                                         title="{% if user.is_active %}تعطيل{% else %}تفعيل{% endif %}">
                                     <i class="fas fa-{% if user.is_active %}ban{% else %}check{% endif %}"></i>
                                 </button>
@@ -280,26 +362,29 @@
     <div class="modal" id="subscription-modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3><i class="fas fa-crown"></i> إدارة الاشتراك</h3>
-                <span class="close-modal" onclick="closeModal('subscription-modal')">&times;</span>
+                <h2><i class="fas fa-crown"></i> تفعيل اشتراك</h2>
+                <button class="close-btn" onclick="closeModal('subscription-modal')">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
-            
+
             <input type="hidden" id="selected-user-id">
-            
-            <div class="plans-grid" id="plans-grid">
+
+            <div class="plans-grid">
                 {% for plan in plans %}
                 <div class="plan-card" onclick="selectPlan(this, '{{ plan.name }}', {{ plan.duration_days }}, {{ plan.max_products }}, {{ plan.max_users }}, {{ plan.price }})">
-                    <h4 style="color: #667eea; margin-bottom: 10px;">{{ plan.name }}</h4>
-                    <p style="font-size: 14px; color: #666; margin-bottom: 10px;">{{ plan.features }}</p>
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <span style="font-size: 24px; font-weight: 800; color: #2c3e50;">{{ plan.price }} ج.م</span>
-                        <span style="color: #999;">{{ plan.duration_days }} يوم</span>
+                    <h3>{{ plan.name }}</h3>
+                    <div class="price">{{ plan.price }} ج.م</div>
+                    <div class="features">
+                        <p><i class="fas fa-calendar"></i> {{ plan.duration_days }} يوم</p>
+                        <p><i class="fas fa-box"></i> {{ plan.max_products }} منتج</p>
+                        <p><i class="fas fa-users"></i> {{ plan.max_users }} مستخدم</p>
                     </div>
                 </div>
                 {% endfor %}
             </div>
 
-            <button class="btn" onclick="createSubscription()" style="margin-top: 20px;">
+            <button class="btn btn-primary" onclick="createSubscription()" style="width: 100%; padding: 15px;">
                 <i class="fas fa-check"></i> تفعيل الاشتراك
             </button>
         </div>
@@ -322,6 +407,7 @@
                 box-shadow: 0 4px 12px rgba(0,0,0,0.3);
                 z-index: 10000;
                 font-weight: 700;
+                font-size: 16px;
                 animation: slideDown 0.3s ease;
             `;
             toast.innerHTML = `
@@ -357,7 +443,7 @@
 
         async function createSubscription() {
             if (!selectedPlan) {
-                showToast('error', 'اختر خطة اشتراك أولاً');
+                showToast('error', '❌ اختر خطة اشتراك أولاً');
                 return;
             }
 
@@ -380,20 +466,20 @@
                 const result = await response.json();
 
                 if (result.success) {
-                    showToast('success', 'تم تفعيل الاشتراك بنجاح');
+                    showToast('success', '✅ تم تفعيل الاشتراك بنجاح');
                     closeModal('subscription-modal');
-                    setTimeout(() => location.reload(), 1000);
+                    setTimeout(() => location.reload(), 1500);
                 } else {
-                    showToast('error', result.message || 'خطأ في تفعيل الاشتراك');
+                    showToast('error', '❌ ' + (result.message || 'خطأ في تفعيل الاشتراك'));
                 }
             } catch (error) {
-                showToast('error', 'خطأ في الاتصال');
+                showToast('error', '❌ خطأ في الاتصال');
             }
         }
 
         async function extendSubscription(userId) {
             const days = prompt('عدد الأيام للتمديد:', '30');
-            if (!days) return;
+            if (!days || isNaN(days)) return;
 
             try {
                 const response = await fetch('/admin/extend-subscription', {
@@ -405,13 +491,13 @@
                 const result = await response.json();
 
                 if (result.success) {
-                    showToast('success', 'تم تمديد الاشتراك');
-                    setTimeout(() => location.reload(), 1000);
+                    showToast('success', '✅ تم تمديد الاشتراك بنجاح');
+                    setTimeout(() => location.reload(), 1500);
                 } else {
-                    showToast('error', result.message || 'خطأ');
+                    showToast('error', '❌ ' + (result.message || 'خطأ في التمديد'));
                 }
             } catch (error) {
-                showToast('error', 'خطأ في الاتصال');
+                showToast('error', '❌ خطأ في الاتصال');
             }
         }
 
@@ -431,16 +517,21 @@
                 const result = await response.json();
 
                 if (result.success) {
-                    showToast('success', `تم ${action} المستخدم`);
-                    setTimeout(() => location.reload(), 1000);
+                    showToast('success', `✅ تم ${action} المستخدم بنجاح`);
+                    setTimeout(() => location.reload(), 1500);
                 } else {
-                    showToast('error', 'خطأ');
+                    showToast('error', '❌ ' + (result.message || 'خطأ'));
                 }
             } catch (error) {
-                showToast('error', 'خطأ في الاتصال');
+                showToast('error', '❌ خطأ في الاتصال');
+            }
+        }
+
+        function logout() {
+            if (confirm('هل تريد تسجيل الخروج؟')) {
+                window.location.href = '/logout';
             }
         }
     </script>
 </body>
 </html>
-
